@@ -1,0 +1,29 @@
+#!/bin/bash
+
+case $1 in
+load)
+    if [ -z $3 ]; then
+        t = ${ls/dev/ | rg md407 | fzf}
+        echo -e "load\n" | cat - $2 >/dev/$t
+    else
+        echo -e "load\n" | cat - $2 >$3
+    fi
+    ;;
+go)
+    if [ -z $2 ]; then
+        t = ${ls/dev/ | rg md407 | fzf}
+        echo -e "go\n" >/dev/$t
+    else
+        echo -e "go\n" >$2
+    fi
+    ;;
+run)
+    if [ -z $2 ]; then
+        # picocom is required to have correct output due to lf+cr problems
+        t = ${ls/dev/ | rg md407 | fzf}
+        exec picocom /dev/$t -b 115200 --imap lfcrlf
+    else
+        exec picocom $2 -b 115200 --imap lfcrlf
+    fi
+    ;;
+esac
