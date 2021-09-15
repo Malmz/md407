@@ -1,0 +1,1 @@
+ATTR{product}=="FT230X Basic UART", RUN+="/usr/bin/set_md407_baud %k", SYMLINK+="md407c%1"
