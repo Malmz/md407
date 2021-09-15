@@ -1,0 +1,2 @@
+#!/bin/sh
+stty --file=/dev/$1 115200 -ignpar -icrnl -opost -isig -icanon -echo
