@@ -6,9 +6,9 @@ BuildArch: noarch
 
 License: MIT
 URL: https://github.com/Malmz/md407
-Source0: https://github.com/Malmz/md407/archive/refs/tags/v1.0.tar.gz
+Source0: https://github.com/Malmz/md407/archive/refs/tags/v%version.tar.gz
 
-Requires: bash ripgrep fzf
+Requires: bash ripgrep fzf picocom
 
 %description
 Basic support for md407 computer
