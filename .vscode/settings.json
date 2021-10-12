@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.desktop": "ini",
+    "main.h": "c"
+  }
+}

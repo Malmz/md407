@@ -13,7 +13,7 @@ impl SkimItem for Item {
     }
 }
 
-pub fn pick_device() -> Result<PathBuf> {
+pub fn pick_device(always_pick: bool) -> Result<PathBuf> {
     let (tx, rx): (SkimItemSender, SkimItemReceiver) = unbounded();
 
     let dir = read_dir("/dev")?;
@@ -38,7 +38,7 @@ pub fn pick_device() -> Result<PathBuf> {
 
     ensure!(!rx.is_empty(), "No ttyUSB found");
 
-    if rx.len() > 1 {
+    if rx.len() > 1 || always_pick {
         let options = SkimOptions::default();
 
         let selected_items = Skim::run_with(&options, Some(rx))
