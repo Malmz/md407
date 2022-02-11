@@ -14,10 +14,6 @@ use anyhow::{bail, Context, Result};
 use pico_args::Arguments;
 use rustyline::Editor;
 use term::Term;
-use termios::{
-    cfsetspeed, os::linux::B115200, tcsetattr, Termios, ECHO, ICANON, ICRNL, IGNPAR, ISIG, OPOST,
-    TCSANOW,
-};
 
 use crate::pick_device::pick_device;
 
@@ -76,8 +72,7 @@ fn read(tty: &mut Term) -> Result<()> {
 }
 
 fn load(tty: &mut Term, source: &mut File) -> Result<()> {
-    tty.load()?;
-    tty.copy(source)?;
+    tty.flash(source)?;
     Ok(())
 }
 
@@ -87,31 +82,13 @@ fn go(tty: &mut Term) -> Result<()> {
 }
 
 fn run(tty: &mut Term, source: &mut File) -> Result<()> {
-    tty.load()?;
-    tty.copy(source)?;
+    tty.flash(source)?;
     tty.go()?;
     Ok(())
 }
 
-fn picocom(path: &Path) -> Result<()> {
+fn picocom(path: &str) -> Result<()> {
     exec_interactive(path)?;
-    Ok(())
-}
-
-fn _setup_terminal(args: &mut Arguments) -> Result<()> {
-    let dev_path: PathBuf = args.free_from_str()?;
-    let dev = File::open(dev_path)?;
-    let fd = dev.into_raw_fd();
-    let mut termios = Termios::from_fd(fd)?;
-
-    termios.c_iflag |= IGNPAR;
-    termios.c_iflag &= !(ICRNL);
-    termios.c_oflag &= !(OPOST);
-    termios.c_lflag &= !(ECHO | ICANON | ISIG);
-
-    cfsetspeed(&mut termios, B115200)?;
-    tcsetattr(fd, TCSANOW, &termios)?;
-
     Ok(())
 }
 
@@ -121,16 +98,16 @@ fn file_from_args(args: &mut Arguments) -> Result<File> {
     Ok(file)
 }
 
-fn get_tty_path(args: &mut Arguments) -> Result<PathBuf> {
+fn get_tty_path(args: &mut Arguments) -> Result<String> {
     let pick = args.contains("-p");
-    let dev_path: PathBuf = match args.opt_value_from_str("--tty")? {
+    let dev_path = match args.opt_value_from_str("--tty")? {
         Some(path) => path,
         None => pick_device(pick)?,
     };
     Ok(dev_path)
 }
 
-fn exec_interactive(path: &Path) -> Result<()> {
+fn exec_interactive(path: &str) -> Result<()> {
     Err(Command::new("picocom")
         .arg(path)
         .arg("-b")
